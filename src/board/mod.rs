@@ -2,13 +2,13 @@ use crate::pieces::Piece;
 
 pub struct Node {
     edges: Vec<Edge>,
-    coord: (u32, u32),
+    vector: (u32, u32),
     piece: Option<Piece>,
 }
 
 pub struct Edge {
     node: (u32, u32),
-    dir_vector: (u32, u32),
+    dis_vector: (u32, u32),
 }
 
 pub struct Board {
