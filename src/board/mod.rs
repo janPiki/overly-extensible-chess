@@ -91,17 +91,37 @@ impl Board {
         board
     }
 
-    fn get_node_mut(&mut self, vec: (u32, u32)) -> Option<&mut Node> {
+    pub fn get_node_mut(&mut self, vec: (u32, u32)) -> Option<&mut Node> {
         self.nodes.iter_mut().find(|n| n.vector == vec)
     }
 
-    fn get_node(&mut self, vec: (u32, u32)) -> Option<&Node> {
+    pub fn get_node(&mut self, vec: (u32, u32)) -> Option<&Node> {
         self.nodes.iter().find(|n| n.vector == vec)
     }
 
     pub fn set_piece(&mut self, position: (u32, u32), piece: Piece) {
         if let Some(node) = self.get_node_mut(position) {
             node.piece = Some(piece);
+        }
+    }
+
+    pub fn remove_piece(&mut self, target: (u32, u32)) {
+        if let Some(node) = self.get_node_mut(target) {
+            node.piece = None
+        }
+    }
+
+    pub fn move_piece(&mut self, from: (u32, u32), to: (u32, u32)) -> bool {
+        if let Some(node) = self.get_node_mut(from) {
+            if let Some(piece) = node.piece {
+                self.set_piece(to, piece);
+                self.remove_piece(from);
+                true
+            } else {
+                false
+            }
+        } else {
+            false
         }
     }
 

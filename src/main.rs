@@ -14,11 +14,13 @@ fn main() {
     let sprites_list = render::load_sprites(&mut rl, &thread);
 
     let tile_size = 90;
-    let game = game::Game::new();
+    let mut game = game::Game::new();
 
     while !rl.window_should_close() {
+        game.update_game(&rl, tile_size);
+
         let mut d = rl.begin_drawing(&thread);
-        render::draw_grid(tile_size, &mut d);
-        render::draw_pieces(&mut d, &game.board, &sprites_list, tile_size, 720);
+        render::draw_grid(tile_size as i32, &mut d);
+        render::draw_pieces(&mut d, &game.board, tile_size as i32, &sprites_list, &game);
     }
 }

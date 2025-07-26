@@ -1,6 +1,7 @@
 use std::collections::HashMap;
 
 use crate::board::Board;
+use crate::game::Game;
 use crate::pieces::{PieceColor, PieceType};
 use raylib::prelude::*;
 
@@ -64,22 +65,33 @@ pub fn draw_grid(tile_size: i32, d: &mut RaylibDrawHandle) {
 pub fn draw_pieces(
     d: &mut RaylibDrawHandle,
     board: &Board,
-    sprites: &SpriteMap,
     tile_size: i32,
-    screen_size: i32,
+    sprites: &SpriteMap,
+    game: &Game,
 ) {
     for node in &board.nodes {
         if let Some(piece) = node.piece {
-            let (x, y) = node.vector;
-            let x_pos = x as i32 * tile_size;
-            let y_pos = y as i32 * tile_size;
+            if game
+                .dragging
+                .map_or(true, |dragged_pos| dragged_pos != node.vector)
+            {
+                let (x, y) = node.vector;
+                let x_pos = x as i32 * tile_size;
+                let y_pos = y as i32 * tile_size;
+                if let Some(texture) = sprites.get(&(piece.color, piece.piece_type)) {
+                    d.draw_texture(texture, x_pos, y_pos, Color::WHITE);
+                }
+            }
+        }
+
+        // Draw the piece being dragged at mouse cursor
+        if let Some(piece) = game.dragged_piece {
             if let Some(texture) = sprites.get(&(piece.color, piece.piece_type)) {
-                d.draw_texture(
-                    texture,
-                    x_pos,
-                    (screen_size - y_pos) - tile_size,
-                    Color::WHITE,
-                );
+                let mouse_pos = d.get_mouse_position();
+                // Offset position to make it centered
+                let x = mouse_pos.x - 45.0;
+                let y = mouse_pos.y - 45.0;
+                d.draw_texture(texture, x as i32, y as i32, Color::WHITE);
             }
         }
     }
