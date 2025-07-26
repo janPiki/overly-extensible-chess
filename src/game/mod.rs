@@ -51,9 +51,16 @@ impl Game {
                 let to_pos = (x, y);
 
                 if from_pos != to_pos {
-                    if self.board.move_piece(from_pos, to_pos) {
-                        self.move_count += 1;
-                        self.turn = !self.turn;
+                    if let Some(node) = self.board.get_node(from_pos) {
+                        if let Some(piece) = node.piece {
+                            let moves = piece.generate_legal_moves(from_pos, &self.board);
+                            if moves.contains(&to_pos) {
+                                if self.board.move_piece(from_pos, to_pos) {
+                                    self.move_count += 1;
+                                    self.turn = !self.turn;
+                                }
+                            }
+                        }
                     }
                 }
 

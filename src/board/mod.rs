@@ -16,15 +16,12 @@ pub struct Board {
 }
 
 impl Board {
-    // (0, 0) is top left, but rotated 90°
-    // So x/files -> y/ranks
-    // And y/ranks -> x/files
     pub fn new_empty() -> Self {
         let mut nodes = Vec::new();
         for rank in 0..8 {
             for file in 0..8 {
                 nodes.push(Node {
-                    vector: (rank, file),
+                    vector: (file, rank),
                     piece: None,
                     edges: Vec::new(),
                 });
@@ -35,7 +32,7 @@ impl Board {
 
         for rank in 0..8 {
             for file in 0..8 {
-                let vec = (rank, file);
+                let vec = (file, rank);
                 if let Some(node) = board.get_node_mut(vec) {
                     node.edges = Board::generate_adjacency_edges(vec);
                 }
@@ -55,14 +52,14 @@ impl Board {
         // Setup white pieces
         for rank in 0..8 {
             board.set_piece(
-                (rank, 0),
+                (rank, 7),
                 Piece {
                     piece_type: back_rank[rank as usize],
                     color: White,
                 },
             );
             board.set_piece(
-                (rank, 1),
+                (rank, 6),
                 Piece {
                     piece_type: Pawn,
                     color: White,
@@ -73,14 +70,14 @@ impl Board {
         // Setup black pieces
         for rank in 0..8 {
             board.set_piece(
-                (rank, 7),
+                (rank, 0),
                 Piece {
                     piece_type: back_rank[rank as usize],
                     color: Black,
                 },
             );
             board.set_piece(
-                (rank, 6),
+                (rank, 1),
                 Piece {
                     piece_type: Pawn,
                     color: Black,
@@ -91,12 +88,24 @@ impl Board {
         board
     }
 
-    pub fn get_node_mut(&mut self, vec: (u32, u32)) -> Option<&mut Node> {
-        self.nodes.iter_mut().find(|n| n.vector == vec)
+    pub fn get_node_mut(&mut self, pos: (u32, u32)) -> Option<&mut Node> {
+        let (file, rank) = pos;
+        if file < 8 && rank < 8 {
+            let idx = (rank * 8 + file) as usize;
+            self.nodes.get_mut(idx)
+        } else {
+            None
+        }
     }
 
-    pub fn get_node(&mut self, vec: (u32, u32)) -> Option<&Node> {
-        self.nodes.iter().find(|n| n.vector == vec)
+    pub fn get_node(&self, pos: (u32, u32)) -> Option<&Node> {
+        let (file, rank) = pos;
+        if file < 8 && rank < 8 {
+            let idx = (rank * 8 + file) as usize;
+            self.nodes.get(idx)
+        } else {
+            None
+        }
     }
 
     pub fn set_piece(&mut self, position: (u32, u32), piece: Piece) {
@@ -125,7 +134,7 @@ impl Board {
         }
     }
 
-    fn generate_adjacency_edges(vec: (u32, u32)) -> Vec<Edge> {
+    fn generate_adjacency_edges(pos: (u32, u32)) -> Vec<Edge> {
         let mut edges = Vec::new();
         let directions: [(i8, i8); 8] = [
             (-1, -1),
@@ -138,12 +147,15 @@ impl Board {
             (1, 1),
         ];
 
+        let (x, y) = (pos.0 as i8, pos.1 as i8);
+
         for (dx, dy) in directions.iter() {
-            let (ny, nx) = (vec.0 as i8 + dy, vec.1 as i8 + dx);
+            let nx = x + dx;
+            let ny = y + dy;
             if ny >= 0 && ny < 8 && nx >= 0 && nx < 8 {
                 edges.push(Edge {
-                    node: (ny as u32, nx as u32),
-                    dis_vector: (*dy as u32, *dx as u32),
+                    node: (nx as u32, ny as u32),
+                    dis_vector: (*dx as u32, *dy as u32),
                 });
             }
         }
