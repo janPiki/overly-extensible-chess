@@ -16,6 +16,6 @@ pub enum PieceColor {
 
 #[derive(Clone, Copy)]
 pub struct Piece {
-    piece_type: PieceType,
-    color: PieceColor,
+    pub piece_type: PieceType,
+    pub color: PieceColor,
 }
